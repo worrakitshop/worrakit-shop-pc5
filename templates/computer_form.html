@@ -1,0 +1,38 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="cardx p-3">
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <i class="bi bi-pc-display text-info fs-5"></i>
+    <h4 class="m-0">{{ 'เพิ่มเครื่องใหม่' if mode=='new' else 'แก้ไขข้อมูลเครื่อง' }}</h4>
+  </div>
+  <form method="post" class="row g-3">
+    <div class="col-md-4">
+      <label class="form-label">ชื่อเครื่อง</label>
+      <input name="name" class="form-control" value="{{ comp.name if comp else '' }}" required>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">ราคา/ชั่วโมง (บาท)</label>
+      <input name="rate_hour" type="number" min="0" step="1" class="form-control" value="{{ comp.rate_hour if comp else 0 }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">ราคา/วัน (บาท)</label>
+      <input name="rate_day" type="number" min="0" step="1" class="form-control" value="{{ comp.rate_day if comp else 0 }}">
+    </div>
+    <div class="col-12">
+      <label class="form-label">สเปก</label>
+      <textarea name="spec" class="form-control" rows="3">{{ comp.spec if comp else '' }}</textarea>
+    </div>
+    {% if mode=='edit' %}
+    <div class="col-12 form-check">
+      <input class="form-check-input" type="checkbox" name="is_active" id="active" {% if comp.is_active %}checked{% endif %}>
+      <label class="form-check-label" for="active">ใช้งานอยู่</label>
+    </div>
+    {% endif %}
+    <div class="col-12">
+      <button class="btn btn-neon" type="submit">บันทึก</button>
+      <a class="btn btn-outline-light" href="{{ url_for('price') }}">ยกเลิก</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
