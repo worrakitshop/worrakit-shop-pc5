@@ -197,6 +197,7 @@ def delete_booking(bid):
     flash('ลบการจองแล้ว', 'info')
     return redirect(url_for('schedule', date=d))
 
+# --- Database Initialization Functions ---
 @app.cli.command('init-db')
 def init_db():
     db.create_all()
@@ -211,11 +212,14 @@ def seed():
     ]
     db.session.add_all(comps); db.session.commit()
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        if Computer.query.count() == 0:
-            seed()
-    # บรรทัดนี้ใช้สำหรับรันในเครื่อง (Local) เท่านั้น 
-    # บน Render จะใช้ Gunicorn ที่ถูกเรียกผ่าน Start Command แทน
-    app.run(debug=True)
+# ****************************************************
+# ** FINAL FIX: โค้ดนี้จะถูกรันทันทีที่ Gunicorn โหลดไฟล์ **
+# ****************************************************
+with app.app_context():
+    # 1. สร้างตารางทั้งหมด (ถ้ายังไม่มี)
+    db.create_all()
+    # 2. เพิ่มข้อมูลเริ่มต้น (ถ้ายังไม่มีข้อมูล)
+    if Computer.query.count() == 0:
+        seed()
+
+# (ไม่มี if __name__ == '__main__': ใน Production)
