@@ -1,4 +1,3 @@
-
 <table class="table table-dark table-bordered table-hover align-middle">
   <thead class="table-light sticky-head">
     <tr>
@@ -20,9 +19,15 @@
         {% for c in comps %}
           {% set items = [] %}
           {% for b in by_comp.get(c.id, []) %}
-            {% if b.start_at <= h < b.end_at %}
+            
+            {% set hour_end = h + timedelta(hours=1) %}
+            
+            {# เงื่อนไขการซ้อนทับ: ชั่วโมงปัจจุบัน (h) จะแสดงผลถ้ามันซ้อนทับกับการจอง (b.start_at ถึง b.end_at) #}
+            {# ซึ่งคือ h เริ่มต้นก่อน b.end_at และ hour_end สิ้นสุดหลัง b.start_at #}
+            {% if h < b.end_at and hour_end > b.start_at %}
               {% set _ = items.append(b) %}
             {% endif %}
+            
           {% endfor %}
           <td>
             {% for b in items %}
