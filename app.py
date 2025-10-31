@@ -216,6 +216,6 @@ if __name__ == '__main__':
         db.create_all()
         if Computer.query.count() == 0:
             seed()
-    # เปลี่ยนจากการใช้ app.run(debug=False) เป็นการใช้ flask run (ใน terminal) แทน
-    # หากรันโดยตรงด้วย python app.py จะใช้ app.run(debug=True)
+    # บรรทัดนี้ใช้สำหรับรันในเครื่อง (Local) เท่านั้น 
+    # บน Render จะใช้ Gunicorn ที่ถูกเรียกผ่าน Start Command แทน
     app.run(debug=True)
