@@ -165,12 +165,22 @@ def new_booking():
         day = parse_date(request.form['day'])
         start_t = datetime.strptime(request.form['start_time'], "%H:%M").time()
         end_t = datetime.strptime(request.form['end_time'], "%H:%M").time()
+        
         start_at = datetime.combine(day, start_t)
         end_at = datetime.combine(day, end_t)
-        # basic valid
+        
+        # *** FIX FOR CROSS-DAY BOOKING ***
         if end_at <= start_at:
-            flash('เวลาไม่ถูกต้อง: เวลาเสร็จต้องมากกว่าเวลาเริ่ม', 'danger')
-            return redirect(url_for('new_booking', date=day.isoformat()))
+            # ถ้าเวลาสิ้นสุดน้อยกว่าหรือเท่ากับเวลาเริ่มต้น แสดงว่าข้ามวัน
+            # ให้เพิ่ม end_at ไปอีก 1 วัน
+            end_at += timedelta(days=1)
+            
+            # ตรวจสอบซ้ำอีกครั้งหลังจากเพิ่มวัน ถ้ายังไม่ถูกต้อง แสดงว่ามีการป้อนข้อมูลผิดพลาดจริงๆ
+            if end_at <= start_at:
+                 flash('เวลาไม่ถูกต้อง: เวลาเสร็จต้องมากกว่าเวลาเริ่ม', 'danger')
+                 return redirect(url_for('new_booking', date=day.isoformat()))
+        # *** END FIX ***
+
         # overlap check
         overlap = Booking.query.filter(
             Booking.computer_id==cid,
@@ -216,7 +226,7 @@ def seed():
 # ** FINAL FIX: โค้ดนี้จะถูกรันทันทีที่ Gunicorn โหลดไฟล์ **
 # ****************************************************
 with app.app_context():
-    # 1. สร้างตารางทั้งหมด (ถ้ายังไม่มี)
+    # 1. สร้างตารางทั้งหมด (ถ้ายังไม่มี) เพื่อแก้ไขปัญหา 'no such table'
     db.create_all()
     # 2. เพิ่มข้อมูลเริ่มต้น (ถ้ายังไม่มีข้อมูล)
     if Computer.query.count() == 0:
