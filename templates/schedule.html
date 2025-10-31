@@ -1,0 +1,38 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-12 col-xxl-10">
+    <div class="cardx p-3">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <i class="bi bi-calendar2-week text-danger fs-5"></i>
+        <h4 class="m-0">ตารางเช่า <small class="text-secondary">({{ day.strftime('%d/%m/%Y') }})</small></h4>
+      </div>
+
+      <form class="row g-2 mb-3" method="get" id="dayForm">
+        <div class="col-auto">
+          <input type="date" class="form-control" name="date" id="dateInput" value="{{ day.isoformat() }}">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-neon" type="submit"><i class="bi bi-calendar-check"></i> ไปวันที่นี้</button>
+          <a class="btn btn-outline-light" href="{{ url_for('schedule', date=(day - timedelta(days=1)).isoformat()) }}">← เมื่อวาน</a>
+          <a class="btn btn-outline-light" href="{{ url_for('schedule', date=(day + timedelta(days=1)).isoformat()) }}">พรุ่งนี้ →</a>
+        </div>
+      </form>
+
+      <div id="scheduleTable">{% include "_schedule_table.html" %}</div>
+      <div class="tip small mt-2">หน้ารีเฟรชข้อมูลอัตโนมัติทุก 20 วินาที</div>
+    </div>
+  </div>
+
+<script>
+  const scheduleTable = document.getElementById('scheduleTable');
+  const dateInput = document.getElementById('dateInput');
+  async function fetchTable(){
+    const date = dateInput.value || new Date().toISOString().slice(0,10);
+    const res = await fetch(`/schedule?date=${date}&partial=1`, {cache:'no-store'});
+    if(res.ok){ scheduleTable.innerHTML = await res.text(); }
+  }
+  setInterval(fetchTable, 20000);
+</script>
+{% endblock %}
