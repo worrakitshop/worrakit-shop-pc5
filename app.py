@@ -52,14 +52,25 @@ def home():
     return redirect(url_for('schedule'))
 
 def _sched_ctx(day: date):
-    start_of_day = datetime.combine(day, time(0,0))
-    end_of_day = start_of_day + timedelta(days=1)
+    # Fix: ดึงข้อมูลการจองที่อาจเริ่มต้นในวันก่อนหน้าแต่คาบเกี่ยวกับวันปัจจุบัน
+    start_of_current_day = datetime.combine(day, time(0,0))
+    start_of_day_before = start_of_current_day - timedelta(days=1)
+    end_of_next_day = start_of_current_day + timedelta(days=1)
+    
     comps = Computer.query.filter_by(is_active=True).order_by(Computer.id.asc()).all()
-    bookings = Booking.query.filter(Booking.start_at < end_of_day, Booking.end_at > start_of_day).all()
+    
+    # FIX: ดึงการจองทั้งหมดที่เกิดขึ้นในช่วง 48 ชั่วโมง เพื่อให้ครอบคลุมการจองข้ามวัน
+    bookings = Booking.query.filter(
+        Booking.start_at < end_of_next_day,
+        Booking.end_at > start_of_day_before
+    ).all()
+    
     by_comp = {c.id: [] for c in comps}
     for b in bookings:
         by_comp.setdefault(b.computer_id, []).append(b)
-    hours = [start_of_day + timedelta(hours=h) for h in range(24)]
+        
+    hours = [start_of_current_day + timedelta(hours=h) for h in range(24)]
+    
     return dict(day=day, comps=comps, hours=hours, by_comp=by_comp, timedelta=timedelta)
 
 @app.route('/schedule')
