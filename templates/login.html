@@ -1,0 +1,26 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="cardx p-4">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-shield-lock text-danger fs-4"></i>
+        <h4 class="m-0">ล็อกอินแอดมิน</h4>
+      </div>
+      <form method="post">
+        <div class="mb-3">
+          <label class="form-label">ชื่อผู้ใช้</label>
+          <input name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">รหัสผ่าน</label>
+          <input name="password" type="password" class="form-control" required>
+        </div>
+        <button class="btn btn-neon w-100">ล็อกอิน</button>
+        <a class="btn btn-outline-light w-100 mt-2" href="{{ url_for('schedule') }}">กลับหน้าตาราง</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
